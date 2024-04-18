@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import shuffle from "./utilities/shuffle";
 import Card from "./components/Card";
+import Header from "./components/Header";
 
 function App() {
   const [cards, setCards] = useState(shuffle);
@@ -10,15 +11,32 @@ function App() {
   const [wins, setWins] = useState(0); // Win streak
 
   const handleClick = (card) => {
-    if (!disabled) {
-      pickOne ? setPickTwo(card) : setPickOne(card);
+    if (disabled) {
+      // If the game is in a disabled state, ignore clicks
+      return;
     }
+
+    // Check if the card is the same as the first picked card
+    if (card === pickOne) {
+      // Do nothing if the same card is clicked again
+      return;
+    }
+
+    // If no first card is picked or the second card is different, process normally
+    pickOne ? setPickTwo(card) : setPickOne(card);
   };
 
   const handleTurn = () => {
     setPickOne(null);
     setPickTwo(null);
     setDisabled(false);
+  };
+
+  // Start over
+  const handleNewGame = () => {
+    setWins(0);
+    handleTurn();
+    setCards(shuffle);
   };
 
   useEffect(() => {
@@ -66,6 +84,7 @@ function App() {
 
   return (
     <>
+      <Header handleNewGame={handleNewGame} wins={wins} />
       <div class="grid">
         {cards.map((card) => {
           const { id, image, matched } = card;
